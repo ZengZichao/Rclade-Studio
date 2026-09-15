@@ -1,0 +1,16 @@
+If you use Rclade Studio or the underlying Rclade package in your research, please cite:
+
+  Zeng Zichao. Rclade: automated taxonomic collapsing and geological-timescale
+  annotation of time-calibrated phylogenetic trees in R.
+  https://github.com/ZengZichao/Rclade
+  DOI: https://doi.org/10.64898/2026.08.27.747462
+
+A BibTeX entry is:
+
+  @misc{rclade,
+    title = {Rclade: automated taxonomic collapsing and geological-timescale annotation of time-calibrated phylogenetic trees in {R}},
+    author = {Zeng Zichao},
+    year = {2026},
+    howpublished = {\url{https://github.com/ZengZichao/Rclade}},
+    doi = {10.64898/2026.08.27.747462}
+  }

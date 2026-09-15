@@ -1,0 +1,25 @@
+# 构建产物
+dist/
+*.app/
+*.zip
+*.old-*
+.old-*/
+
+# 打包临时
+.release-stage/
+*.iconset/
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# 工具运行产物（hook / 审阅留痕，不入库）
+tests/.mimosa/
+.mimosa/
+
+# R / 本地
+.Rhistory
+.RData
+.Rproj.user/
