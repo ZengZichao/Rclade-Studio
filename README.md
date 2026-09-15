@@ -39,8 +39,8 @@ install.packages("Rclade")
 
 ## Download / 下载
 
-Grab the latest release from the [Releases](https://github.com/ZengZichao/RcladeStudio/releases) page.  
-从 [Releases](https://github.com/ZengZichao/RcladeStudio/releases) 页面下载最新版本。
+Grab the latest release from the [Releases](https://github.com/ZengZichao/Rclade-Studio/releases) page.  
+从 [Releases](https://github.com/ZengZichao/Rclade-Studio/releases) 页面下载最新版本。
 
 Current version: **v0.1.0**  
 当前版本：**v0.1.0**
