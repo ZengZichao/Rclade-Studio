@@ -1,0 +1,48 @@
+name: Bug 报告 / Bug report
+description: 报告 Rclade Studio 的问题
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: 感谢反馈！请尽量填写完整，便于复现。（安全问题请勿在此提交，见 SECURITY.md）
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么？
+      description: 期望行为与实际行为。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 打开 App …
+        2. 点击 …
+        3. 出现 …
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志 / 截图
+      description: 如有报错输出、终端日志或截图请附上。
+  - type: input
+    id: macos-version
+    attributes:
+      label: macOS 版本与架构
+      placeholder: "macOS 15.0 (arm64)"
+    validations:
+      required: true
+  - type: input
+    id: app-version
+    attributes:
+      label: Rclade Studio 版本
+      placeholder: "v0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: r-version
+    attributes:
+      label: R 版本与 Rclade 版本
+      placeholder: "R 4.5.1；Rclade 版本可用 Rscript -e 'packageVersion(\"Rclade\")' 查看"

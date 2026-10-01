@@ -6,6 +6,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+# 最小权限：GITHUB_TOKEN 仅可读仓库内容
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -14,6 +18,7 @@ jobs:
   test:
     name: R round-trip test
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,6 +32,18 @@ jobs:
           # loaded, but >= 4.0.0 is required"。
           r-version: '4.5'
           use-public-rspm: true
+
+      - name: Record R library path
+        run: echo "RLIB=$(Rscript -e 'cat(.libPaths()[1])')" >> "$GITHUB_ENV"
+
+      - name: Cache R packages
+        # 命中缓存时，后续 install.packages / BiocManager::install 对已装包为
+        # no-op，只补缺失的；依赖列表变化时把 key 里的 v1 升号强制重装。
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.RLIB }}
+          key: r-${{ runner.os }}-v1
+          restore-keys: r-${{ runner.os }}-
 
       - name: Install system libs
         # ggtree / deeptime 的绘图链路会 dlopen X11 与字体栈动态库。
@@ -70,3 +87,26 @@ jobs:
 
       - name: Round-trip test
         run: Rscript tests/test_roundtrip.R
+
+  app-build:
+    name: macOS app smoke build
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build .app
+        # build_app.sh：swiftc 编译 Sources → 组装 bundle → ad-hoc 签名。
+        # R 端测试覆盖不了 Swift 侧，这里保证打包链路始终可构建。
+        run: ./build_app.sh
+
+      - name: Verify bundle layout
+        run: |
+          APP=dist/RcladeStudio.app
+          test -x "$APP/Contents/MacOS/RcladeStudio"
+          file "$APP/Contents/MacOS/RcladeStudio"
+          test -f "$APP/Contents/Info.plist"
+          test -f "$APP/Contents/Resources/launch_engine.R"
+          test -f "$APP/Contents/Resources/engine_app.R"
+          codesign --verify --deep "$APP" && echo "codesign OK"

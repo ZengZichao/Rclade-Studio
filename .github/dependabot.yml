@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # CI 工作流中的 GitHub Actions 依赖（actions/checkout、r-lib/actions 等）
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
