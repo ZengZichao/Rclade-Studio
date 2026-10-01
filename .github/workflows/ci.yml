@@ -13,7 +13,7 @@ concurrency:
 jobs:
   test:
     name: R round-trip test
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,9 +28,17 @@ jobs:
           r-version: '4.5'
           use-public-rspm: true
 
-      - name: Install system deps
+      - name: Install system libs
+        # ggtree / deeptime 的绘图链路会 dlopen X11 与字体栈动态库。
+        # runner 用 ubuntu 而非 macos-latest：测试本身无平台依赖（已核对
+        # test_roundtrip.R 不含任何 macOS 专有调用），而 macos-latest 的
+        # 队列远慢于 ubuntu，且其内置 X11 已废弃、不含 libXrender。
         run: |
-          brew install --quiet libgit2 openssl@3 2>/dev/null || true
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libx11-dev libxext-dev libxrender1 libxtst6 libfreetype6-dev
+          echo "--- X11 libs present ---"
+          ldconfig -p | grep -E 'libXrender|libX11' | head -4
 
       - name: Install R dependencies
         # 本仓库无 DESCRIPTION（纯脚本项目），依赖通过 CRAN/Bioconductor 安装：
