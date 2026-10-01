@@ -31,15 +31,16 @@ jobs:
       - name: Install R dependencies
         # 本仓库无 DESCRIPTION（纯脚本项目），依赖通过 CRAN/Bioconductor 安装：
         # Rclade 会带入 ape / ggtree / deeptime 等绘图与时间轴依赖。
-        shell: Rscript
+        # 显式走 `Rscript -e` 而非 `shell: Rscript`——后者在 macOS runner 上
+        # 不会被识别（"Invalid shell option"），需 runner 侧预注册。
         run: |
-          install.packages("BiocManager", quiet = TRUE)
-          BiocManager::install("ggtree", ask = FALSE, update = FALSE)
-          install.packages("Rclade", repos = c(CRAN = "https://cloud.r-project.org"))
+          Rscript -e 'install.packages("BiocManager", repos = c(CRAN = "https://cloud.r-project.org"), quiet = TRUE)'
+          Rscript -e 'BiocManager::install("ggtree", ask = FALSE, update = FALSE)'
+          Rscript -e 'install.packages("Rclade", repos = c(CRAN = "https://cloud.r-project.org"))'
 
       - name: Verify Rclade is importable
-        shell: Rscript
-        run: 'suppressMessages(library(Rclade)); cat("Rclade", as.character(packageVersion("Rclade")), "OK\n")'
+        run: |
+          Rscript -e 'suppressMessages(library(Rclade)); cat("Rclade", as.character(packageVersion("Rclade")), "OK\n")'
 
       - name: Round-trip test
         run: Rscript tests/test_roundtrip.R
