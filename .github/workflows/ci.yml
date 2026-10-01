@@ -39,7 +39,7 @@ jobs:
       - name: Cache R packages
         # 命中缓存时，后续 install.packages / BiocManager::install 对已装包为
         # no-op，只补缺失的；依赖列表变化时把 key 里的 v1 升号强制重装。
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.RLIB }}
           key: r-${{ runner.os }}-v1
