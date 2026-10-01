@@ -21,7 +21,11 @@ jobs:
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
         with:
-          r-version: '4.3'
+          # Rclade 声明 ggtree >= 4.0.0，而 ggtree 4.x 只随 Bioconductor 3.19+
+          # 发布（对应 R >= 4.4）。R 4.3 配 Bioc 3.18 只能拿到 ggtree 3.10.x，
+          # 会在 lazy loading 阶段报 "namespace 'ggtree' 3.10.1 is being
+          # loaded, but >= 4.0.0 is required"。
+          r-version: '4.5'
           use-public-rspm: true
 
       - name: Install system deps
