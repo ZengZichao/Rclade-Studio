@@ -40,8 +40,14 @@ jobs:
             libfreetype6-dev libjpeg-dev libpng-dev libtiff5-dev \
             libcurl4-openssl-dev libssl-dev zlib1g-dev libicu-dev
           echo "--- headers present ---"
-          for h in /usr/include/jpeglib.h /usr/include/curl/curl.h /usr/include/png.h /usr/include/X11/Xlib.h; do
-            [ -f "$h" ] && echo "  ok      $h" || echo "  MISSING $h"
+          # curl.h 装在 multiarch 路径下（/usr/include/x86_64-linux-gnu/curl），
+          # 只查 /usr/include/curl/curl.h 会误报 MISSING，故按文件名全局查找。
+          for h in jpeglib.h png.h Xlib.h curl.h; do
+            if find /usr/include -name "$h" -print -quit 2>/dev/null | grep -q .; then
+              echo "  ok      $h  ($(find /usr/include -name "$h" -print -quit))"
+            else
+              echo "  MISSING $h"
+            fi
           done
 
       - name: Install R dependencies
