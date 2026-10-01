@@ -1,5 +1,7 @@
 # Rclade Studio
 
+[![CI](https://github.com/ZengZichao/Rclade-Studio/actions/workflows/ci.yml/badge.svg)](https://github.com/ZengZichao/Rclade-Studio/actions/workflows/ci.yml)
+
 A native macOS wrapper for the [`Rclade`](https://github.com/ZengZichao/Rclade) R package. Rclade Studio does not duplicate any plotting logic; it discovers the R installation on your Mac, verifies dependencies, launches the bundled enhanced Shiny engine on a local port, and presents it as a real App window via `WKWebView`.
 
 [`Rclade`](https://github.com/ZengZichao/Rclade) R 包的 macOS 原生客户端。Rclade Studio 自身不复制任何绘图逻辑：它自动发现系统中的 R、校验依赖、在本地端口启动内置的增强 Shiny 引擎，并通过 `WKWebView` 将其呈现为一个真正的 App 窗口。
