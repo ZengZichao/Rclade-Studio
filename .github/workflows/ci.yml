@@ -33,10 +33,14 @@ jobs:
         # Rclade 会带入 ape / ggtree / deeptime 等绘图与时间轴依赖。
         # 显式走 `Rscript -e` 而非 `shell: Rscript`——后者在 macOS runner 上
         # 不会被识别（"Invalid shell option"），需 runner 侧预注册。
+        # 每步单独一个 Rscript 进程：R 的 install.packages 在同一进程内连续
+        # 调用时，前一次失败会被后续的 quietly 掩盖，导致包实际没装上。
         run: |
-          Rscript -e 'install.packages("BiocManager", repos = c(CRAN = "https://cloud.r-project.org"), quiet = TRUE)'
-          Rscript -e 'BiocManager::install("ggtree", ask = FALSE, update = FALSE)'
-          Rscript -e 'install.packages("Rclade", repos = c(CRAN = "https://cloud.r-project.org"))'
+          set -euo pipefail
+          Rscript -e 'install.packages("BiocManager", repos="https://cloud.r-project.org")'
+          Rscript -e 'BiocManager::install("ggtree", ask=FALSE, update=FALSE)'
+          Rscript -e 'install.packages("Rclade", repos="https://cloud.r-project.org")'
+          Rscript -e 'ip <- rownames(installed.packages()); cat("installed:", length(ip), "\n"); cat("has Rclade:", "Rclade" %in% ip, "\n")'
 
       - name: Verify Rclade is importable
         run: |
