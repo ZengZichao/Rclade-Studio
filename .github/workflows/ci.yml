@@ -36,9 +36,13 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
-            libx11-dev libxext-dev libxrender1 libxtst6 libfreetype6-dev
-          echo "--- X11 libs present ---"
-          ldconfig -p | grep -E 'libXrender|libX11' | head -4
+            libx11-dev libxext-dev libxrender1 libxtst6 \
+            libfreetype6-dev libjpeg-dev libpng-dev libtiff5-dev \
+            libcurl4-openssl-dev libssl-dev zlib1g-dev libicu-dev
+          echo "--- headers present ---"
+          for h in /usr/include/jpeglib.h /usr/include/curl/curl.h /usr/include/png.h /usr/include/X11/Xlib.h; do
+            [ -f "$h" ] && echo "  ok      $h" || echo "  MISSING $h"
+          done
 
       - name: Install R dependencies
         # 本仓库无 DESCRIPTION（纯脚本项目），依赖通过 CRAN/Bioconductor 安装：
