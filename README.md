@@ -1,6 +1,8 @@
 # Rclade Studio
 
 [![CI](https://github.com/ZengZichao/Rclade-Studio/actions/workflows/ci.yml/badge.svg)](https://github.com/ZengZichao/Rclade-Studio/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![ORCID](https://img.shields.io/badge/ORCID-0000--0001--6553--970X-a6ce39?logo=orcid&logoColor=white)](https://orcid.org/0000-0001-6553-970X)
 
 A native macOS wrapper for the [`Rclade`](https://github.com/ZengZichao/Rclade) R package. Rclade Studio does not duplicate any plotting logic; it discovers the R installation on your Mac, verifies dependencies, launches the bundled enhanced Shiny engine on a local port, and presents it as a real App window via `WKWebView`.
 
