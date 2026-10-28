@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>Rclade Studio</title>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="#16211D"/>
+  <g stroke="#F7F5EF" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M512 708 L512 612"/>
+    <path d="M512 612 L371 475.8"/>
+    <path d="M371 475.8 L233.1 451"/>
+    <path d="M371 475.8 L341.4 338.9"/>
+    <path d="M512 612 L512 416"/>
+    <path d="M512 416 L434.1 299.6"/>
+    <path d="M512 416 L589.9 299.6"/>
+    <path d="M512 612 L653 475.8"/>
+    <path d="M653 475.8 L682.6 338.9"/>
+    <path d="M653 475.8 L790.9 451"/>
+  </g>
+</svg>

@@ -29,15 +29,11 @@ A native macOS wrapper for the [`Rclade`](https://github.com/ZengZichao/Rclade) 
 
 - macOS ≥ 11 (Big Sur). PDF/PNG export requires macOS ≥ 11.3.  
   macOS ≥ 11；导出 PDF/PNG 需要 macOS ≥ 11.3。
-- A working **R (≥ 4.1)** installation with the **`Rclade`** package installed.  
-  已安装 **R (≥ 4.1)** 且已安装 **`Rclade`** 包。
+**No R installation is required** — release builds ship a bundled R runtime (R 4.5.3 + `Rclade` + `ggtree` + `deeptime` + `shiny`) inside the app bundle.  
+**无需安装 R** —— 发布版已内置 R 运行时（R 4.5.3 + `Rclade` + `ggtree` + `deeptime` + `shiny`）。
 
-```r
-install.packages("Rclade")
-```
-
-`Rclade` will pull in Bioconductor dependencies such as `ggtree`, `deeptime`, and `treeio` automatically.  
-`Rclade` 会自动安装 `ggtree`、`deeptime`、`treeio` 等 Bioconductor 依赖。
+If you build from source without bundling a runtime, the app falls back to any R on your Mac that has `Rclade` installed.  
+若从源码构建且未打包运行时，应用会回落到本机任意一个装了 `Rclade` 的 R。
 
 ---
 
@@ -68,9 +64,10 @@ xattr -dr com.apple.quarantine /path/to/RcladeStudio.app
 ## Build from Source / 从源码构建
 
 ```bash
-./build_app.sh             # build RcladeStudio.app
+./scripts/bundle_runtime.sh   # optional: bundle R + Rclade into Resources/R
+./build_app.sh                # build RcladeStudio.app
 open dist/RcladeStudio.app
-./scripts/release.sh       # package dist/RcladeStudio-0.1.0-arm64.zip
+./scripts/release.sh          # package dist/RcladeStudio-0.1.0-arm64.zip
 ```
 
 Run the round-trip test in an environment with R + Rclade:  

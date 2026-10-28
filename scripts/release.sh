@@ -6,7 +6,7 @@ cd "$(dirname "$0")/.."
 VER="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Info.plist)"
 ARCH="$(uname -m)"
 OUT="dist/RcladeStudio-${VER}-${ARCH}.zip"
-STAGE="dist/.release-stage"
+STAGE="${TMPDIR:-/tmp}/rclade-release-$$"   # 放临时目录：不在 dist/ 留 362MB 副本
 
 ./build_app.sh
 
