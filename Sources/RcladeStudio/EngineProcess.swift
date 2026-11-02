@@ -54,6 +54,17 @@ final class EngineProcess {
         p.arguments?.append(lang)             // 第 5 位：界面语言 zh / en
         p.currentDirectoryURL = FileManager.default.temporaryDirectory
 
+        // 用包内运行时的话，把包库挂上（R_HOME 由二进制自身决定，这里不再覆盖）
+        if let lib = RLocator.bundledLibrary, rscript.contains("/Contents/Resources/R/") {
+            var env = ProcessInfo.processInfo.environment
+            env["R_LIBS"] = lib
+            if let res = Bundle.main.resourceURL {
+                let bin = res.appendingPathComponent("R/bin").path
+                env["PATH"] = bin + ":/usr/bin:/bin:/usr/sbin:/sbin"
+            }
+            p.environment = env
+        }
+
         let pipe = Pipe()
         p.standardError = pipe
         p.standardOutput = FileHandle.nullDevice

@@ -41,6 +41,56 @@ enum RLocator {
         }
     }
 
+    /// 包内自带的 R 运行时（由 scripts/bundle_runtime.sh 生成）。
+    /// 存在即可让 app 脱离用户机器上的 R 独立运行。
+    static var bundledRscript: String? {
+        guard let res = Bundle.main.resourceURL else { return nil }
+        let p = res.appendingPathComponent("R/bin/Rscript").path
+        return FileManager.default.isExecutableFile(atPath: p) ? p : nil
+    }
+
+    /// 包内 R_HOME 的实际位置（prefix 布局是 R/lib/R，home 布局是 R 本身），
+    /// 由打包脚本写进 Resources/R/.rclade-link 的第 2 行。
+    static var bundledRuntimeHome: String? {
+        guard let res = Bundle.main.resourceURL else { return nil }
+        let root = res.appendingPathComponent("R")
+        guard let spec = try? String(contentsOfFile: root.appendingPathComponent(".rclade-link").path,
+                                     encoding: .utf8) else { return nil }
+        let parts = spec.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        guard parts.count >= 2 else { return nil }
+        let rel = parts[1].trimmingCharacters(in: .whitespacesAndNewlines)
+        return rel == "." ? root.path : root.appendingPathComponent(rel).path
+    }
+
+    static var bundledLibrary: String? {
+        guard let home = bundledRuntimeHome else { return nil }
+        let p = home + "/library"
+        return FileManager.default.fileExists(atPath: p) ? p : nil
+    }
+
+    /// R 把 R_HOME 编译进了二进制，改成了一条固定的"间接路径"。
+    /// 每次启动把它重新指向当前 .app 里的运行时——app 被移动或升级后也能自愈。
+    @discardableResult
+    static func ensureBundledRuntimeLink() -> Bool {
+        let fm = FileManager.default
+        guard let res = Bundle.main.resourceURL else { return false }
+        let specURL = res.appendingPathComponent("R/.rclade-link")
+        guard let spec = try? String(contentsOf: specURL, encoding: .utf8) else { return false }
+        let parts = spec.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        guard parts.count >= 2 else { return false }
+        let link = parts[0].trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !link.isEmpty, let target = bundledRuntimeHome else { return false }
+
+        if let cur = try? fm.destinationOfSymbolicLink(atPath: link),
+           (cur as NSString).standardizingPath == (target as NSString).standardizingPath {
+            return true
+        }
+        try? fm.createDirectory(atPath: (link as NSString).deletingLastPathComponent,
+                                withIntermediateDirectories: true)
+        try? fm.removeItem(atPath: link)
+        return (try? fm.createSymbolicLink(atPath: link, withDestinationPath: target)) != nil
+    }
+
     static func findRscript() -> String? {
         let fm = FileManager.default
         // 快路径：上次验证过带 Rclade 的 Rscript 仍可用
@@ -48,6 +98,13 @@ enum RLocator {
             .trimmingCharacters(in: .whitespacesAndNewlines),
            !p.isEmpty, fm.isExecutableFile(atPath: p) {
             return p
+        }
+
+        // 包内运行时优先：只有它能保证"双击即可用"。
+        // 探测失败（例如被打包机器之外的签名/路径问题）则无缝回落到系统 R。
+        if let b = bundledRscript, hasRclade(b) {
+            saveCache(b)
+            return b
         }
 
         var seen = Set<String>()

@@ -9,6 +9,11 @@ dist/
 .release-stage/
 *.iconset/
 
+# 内置 R 运行时（由 scripts/bundle_runtime.sh 生成，357MB，不入库）
+Resources/R/
+Resources/.R-build/
+.bundle-*
+
 # macOS
 .DS_Store
 ._*

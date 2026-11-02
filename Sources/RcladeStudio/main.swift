@@ -57,6 +57,7 @@ enum S {
         "choose_restart_now": "立即重启引擎", "choose_later": "稍后（下次启动生效）",
         "cleared_title": "已清除 R 记忆",
         "cleared_body": "下次启动将重新扫描并探测装有 Rclade 的 R。", "ok": "好",
+        "h_guide": "使用说明", "h_issue": "报告问题", "m_about_app": "关于 Rclade Studio",
         "drop_loaded": "%@ — 已载入 %@", "drop_failed": "%@ — 拖入文件写入失败",
         "download_fail": "下载失败",
     ]
@@ -91,6 +92,7 @@ enum S {
         "choose_restart_now": "Restart engine now", "choose_later": "Later (next launch)",
         "cleared_title": "R memory cleared",
         "cleared_body": "The next launch will rescan and probe for an R with Rclade installed.", "ok": "OK",
+        "h_guide": "User Guide", "h_issue": "Report an Issue", "m_about_app": "About Rclade Studio",
         "drop_loaded": "%@ — Loaded %@", "drop_failed": "%@ — failed to write dropped file",
         "download_fail": "Download failed",
     ]
@@ -195,6 +197,8 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window.delegate = self
         window.contentView = web
         web.navigationDelegate = self
+        // 文件面板：WKWebView 不会自己弹 NSOpenPanel，必须由 WKUIDelegate 提供
+        web.uiDelegate = self
     }
 
     func applicationDidFinishLaunching(_ note: Notification) {
@@ -208,6 +212,9 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
         buildMenus()
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+
+        // 包内 R 运行时的间接路径：R 的二进制里写死了它，必须指到当前包
+        _ = RLocator.ensureBundledRuntimeLink()
 
         // M3 拖放：把拖入的树文件路径（单个）写入 dropfile，引擎轮询自动载入（原路径留存，导出可复现）
         web.onDropFiles = { [weak self] paths in
@@ -418,6 +425,12 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
         let helpItem = NSMenuItem()
         let helpMenu = NSMenu(title: L("m_help"))
+        let guide = helpMenu.addItem(withTitle: L("h_guide"),
+                                     action: #selector(openGuide(_:)), keyEquivalent: "?")
+        guide.target = self
+        let issue = helpMenu.addItem(withTitle: L("h_issue"),
+                                     action: #selector(openIssue(_:)), keyEquivalent: "")
+        issue.target = self
         NSApp.helpMenu = helpMenu   // 系统会自动注入帮助搜索框
         helpItem.submenu = helpMenu
         main.addItem(helpItem)
@@ -425,7 +438,8 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
         NSApp.mainMenu = main
     }
 
-    /// 来自增强引擎页面的语言切换请求（WKScriptMessageHandler → 此）。持久化并以新语言重启引擎、重建原生菜单。
+    /// 语言切换：只持久化偏好 + 重建原生菜单 + 让页面就地换文案。
+    /// 不重启引擎——重启意味着丢当前绘图并等待 1–2 分钟，对"换个语言"来说代价过高。
     @objc func handleLanguageChange(_ new: String) {
         let l = (new == "en") ? "en" : "zh"
         guard l != Lang.code else { return }
@@ -433,7 +447,7 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
         Lang.write(l)
         buildMenus()                 // 原生菜单即刻换新语言
         window.title = L("appName")  // 复位窗口标题（拖放临时标题已过时）
-        restartEngine()              // 引擎按新语言重启（会重置绘图会话，属语言切换的预期代价）
+        web.evaluateJavaScript("window.rcladeSetLang && window.rcladeSetLang('\(l)')") { _, _ in }
     }
 
     /// 设置菜单"切换界面语言"项：与网页 header 按钮等效，走同一条切换链路。
@@ -472,6 +486,18 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
     }
 
+    @objc private func openGuide(_ sender: Any?) {
+        if let u = URL(string: "https://github.com/ZengZichao/Rclade-Studio#readme") {
+            NSWorkspace.shared.open(u)
+        }
+    }
+
+    @objc private func openIssue(_ sender: Any?) {
+        if let u = URL(string: "https://github.com/ZengZichao/Rclade-Studio/issues/new") {
+            NSWorkspace.shared.open(u)
+        }
+    }
+
     @objc private func clearRCache(_ sender: Any?) {
         RLocator.invalidateCache()
         let a = NSAlert()
@@ -498,6 +524,24 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
         SingleInstance.release()
         if !handshakePath.isEmpty { try? FileManager.default.removeItem(atPath: handshakePath) }
         engine.stop()
+    }
+}
+
+// MARK: - 文件选择：<input type="file"> 在 WKWebView 里必须由壳弹出打开面板
+
+extension AppController: WKUIDelegate {
+    func webView(_ webView: WKWebView,
+                 runOpenPanelWith parameters: WKOpenPanelParameters,
+                 initiatedByFrame frame: WKFrameInfo,
+                 completionHandler: @escaping ([URL]?) -> Void) {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = parameters.allowsMultipleSelection
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        panel.canCreateDirectories = false
+        panel.begin { response in
+            completionHandler(response == .OK ? panel.urls : nil)
+        }
     }
 }
 

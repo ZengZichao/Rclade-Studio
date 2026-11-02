@@ -27,6 +27,12 @@ echo "› 组装 bundle"
 cp Info.plist                "$APPDIR/Contents/Info.plist"
 cp Resources/launch_engine.R "$APPDIR/Contents/Resources/launch_engine.R"
 cp Resources/engine_app.R    "$APPDIR/Contents/Resources/engine_app.R"
+# 内置 R 运行时（可选，由 scripts/bundle_runtime.sh 生成）——有就带上，让 app 不依赖系统 R
+if [ -d Resources/R ]; then
+  echo "› 打包内置 R 运行时（$(du -sh Resources/R | awk '{print $1}')）"
+  rsync -a --delete Resources/R/ "$APPDIR/Contents/Resources/R/"
+fi
+
 printf 'APPL????' > "$APPDIR/Contents/PkgInfo"
 
 # 图标：如放了 Resources/AppIcon.icns 就一并带上（缺失不致命）
@@ -45,5 +51,5 @@ cat <<EOF
 
 首次运行若被 Gatekeeper 拦（"已损坏/无法打开"）：
   xattr -dr com.apple.quarantine "$APPDIR"
-运行前提：本机已装 R (≥4.1) 且已 install.packages("Rclade")。
+本构建已内置 R 运行时，用户无需另装 R 或 Rclade。
 EOF
