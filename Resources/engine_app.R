@@ -150,12 +150,11 @@
 # 原始 UI 值 -> plot_timetree 参数表（预览与导出共用；不含 tree/tree_index/multi_tree_mode，
 # 后三者由读取阶段/导出阶段按树源单独处理）。v 为 input 同构的命名列表（可测试注入）。
 .collect_params <- function(v, parsed, tax_priority, unit_resolved = NULL) {
-  list(
+  out <- list(
     rank = v$rank,
     clade = .opt_null(v$clade),
     strict = isTRUE(v$strict),
     groups = parsed$groups,
-    groups_label_only = isTRUE(v$groups_label_only),
     triangle_mode = v$triangle_mode,
     space_mode = v$space_mode,
     layout = v$layout,
@@ -209,6 +208,12 @@
     ignore_malformed = isTRUE(v$ignore_malformed),
     ignore_branch_length = isTRUE(v$ignore_branch_length)
   )
+
+  # groups_label_only 是新增形参；只有真的开启时才带上，
+  # 否则在旧版 Rclade（如 CRAN 1.1.5）上会因 unused argument 直接失败。
+  if (isTRUE(v$groups_label_only)) out$groups_label_only <- TRUE
+
+  out
 }
 
 # ==================================================================== 引擎 ====
