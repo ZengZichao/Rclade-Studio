@@ -42,8 +42,8 @@ If you build from source without bundling a runtime, the app falls back to any R
 Grab the latest release from the [Releases](https://github.com/ZengZichao/Rclade-Studio/releases) page.  
 从 [Releases](https://github.com/ZengZichao/Rclade-Studio/releases) 页面下载最新版本。
 
-Current version: **v0.1.0**  
-当前版本：**v0.1.0**
+Current version: **v0.2.0**  
+当前版本：**v0.2.0**
 
 ### First launch / 首次打开
 
@@ -67,7 +67,7 @@ xattr -dr com.apple.quarantine /path/to/RcladeStudio.app
 ./scripts/bundle_runtime.sh   # optional: bundle R + Rclade into Resources/R
 ./build_app.sh                # build RcladeStudio.app
 open dist/RcladeStudio.app
-./scripts/release.sh          # package dist/RcladeStudio-0.1.0-arm64.zip
+./scripts/release.sh          # package dist/RcladeStudio-0.2.0-arm64.zip
 ```
 
 Run the round-trip test in an environment with R + Rclade:  
@@ -91,7 +91,7 @@ Resources/
   launch_engine.R       # Dependency check → load engine_app.R → runApp + handshake
   engine_app.R          # Enhanced Shiny engine UI/server
   AppIcon.icns          # App icon
-Info.plist              # Bundle metadata (v0.1.0)
+Info.plist              # Bundle metadata (v0.2.0)
 build_app.sh            # swiftc → assemble .app → ad-hoc codesign
 scripts/release.sh      # Build .app + user guide → zip
 tests/test_roundtrip.R  # Reproducibility tests
