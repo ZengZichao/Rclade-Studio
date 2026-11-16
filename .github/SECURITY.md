@@ -4,7 +4,7 @@
 
 | 版本 / Version | 支持 / Supported |
 | --- | --- |
-| latest release（v0.1.0 起） | ✅ |
+| latest release（v0.2.0） | ✅ |
 
 ## 报告漏洞 / Reporting a Vulnerability
 
